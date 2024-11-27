@@ -1,0 +1,48 @@
+schema: '2.0'
+stages:
+  get_data:
+    cmd: python -m pipeline.get_data --config=params.yaml
+    deps:
+    - path: pipeline/get_data.py
+      hash: md5
+      md5: 7270866e82cd882b459dc956673900ef
+      size: 1873
+    params:
+      params.yaml:
+        base:
+          log_level: INFO
+          random_state: 42
+        get_training_dataset:
+          dataset: data/input/nba_training_dataset.csv
+    outs:
+    - path: data/input/nba_games_training_dataset.csv
+      hash: md5
+      md5: b3a6eebcd23fa0f006f33d0dab00a608
+      size: 1017744
+  get_training_dataset:
+    cmd:
+    - aws s3 cp s3://foreshadownba/dvc-data-pipeline-output/nba_games_inseason_dataset_final.csv
+      ./data/input/nba_games_inseason_dataset_final.csv --profile=ipfy
+    outs:
+    - path: ./data/input/nba_games_inseason_dataset_final.csv
+      hash: md5
+      md5: bdb0b0c25b43cad4982a764a8f62988f
+      size: 189108
+  get_inseason_dataset:
+    cmd:
+    - aws s3 cp s3://foreshadownba/dvc-data-pipeline-output/nba_games_inseason_dataset_final.csv
+      ./data/input/nba_games_inseason_dataset_final.csv --profile=ipfy
+    outs:
+    - path: ./data/input/nba_games_inseason_dataset_final.csv
+      hash: md5
+      md5: bdb0b0c25b43cad4982a764a8f62988f
+      size: 189108
+  get_models:
+    cmd:
+    - aws s3 cp s3://foreshadownba/dvc-ml-pipeline-output/model.joblib ./models/model.joblib
+      --profile=ipfy
+    outs:
+    - path: ./models/model.joblib
+      hash: md5
+      md5: a79a36f8f5bd464a3f35555dabf379f8
+      size: 2027879

@@ -1,0 +1,27 @@
+vars:
+  - project:
+      directory: .
+stages:
+  get_inseason_dataset:
+      cmd:
+      - >-
+        aws s3 cp
+        s3://foreshadownba/dvc-data-pipeline-output/nba_games_inseason_dataset_final.csv
+        ${project.directory}/data/input/nba_games_inseason_dataset_final.csv
+        --profile=ipfy
+      outs:
+        - ${project.directory}/data/input/nba_games_inseason_dataset_final.csv
+  get_models:
+      cmd:
+      - >-
+        aws s3 cp
+        s3://foreshadownba/dvc-ml-pipeline-output/model.joblib
+        ${project.directory}/models/model.joblib
+        --profile=ipfy
+      outs:
+        - ${project.directory}/models/model.joblib
+  # inference:
+  #     cmd: python print('test')
+  # write_inseason_prediction_to_s3:
+  #     cmd: python print('test')
+        

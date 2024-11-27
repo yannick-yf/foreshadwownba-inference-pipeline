@@ -1,0 +1,7 @@
+
+base:
+  log_level: INFO
+  random_state: 42
+
+get_training_dataset:
+  dataset: data/input/nba_training_dataset.csv

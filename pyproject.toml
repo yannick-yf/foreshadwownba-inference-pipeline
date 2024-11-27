@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "foreshadwownba-inference-pipeline"
+version = "0.1.0"
+description = ""
+authors = ["Yannick Flores <yannick.flores1992@gmail.com>"]
+readme = "README.md"
+packages = [{include = "foreshadwownba_inference_pipeline"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+ipykernel = "*"
+pandas = "*"
+dvc = {extras = ["s3"], version = "^3.38.1"}
+pymysql = "*"
+sqlalchemy = "*"
+python-dotenv  = "*"
+scikit-learn = "*"
+
+[tool.poetry.dev-dependencies]
+coverage = {extras = ["toml"], version = "6.5.*"}
+black = {version = "22.10.*", allow-prereleases = true}
+pytest = "7.2.*"
+pytest-html = "3.1.*"
+pytest-cov = "2.12.*"
+py = "1.11.*"
+pylint = "2.17.*"
+python-decouple = "3.6"
+mkdocs = "1.4.*"
+importlib-resources="6.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+testpaths = "tests"
+addopts = [
+    "--import-mode=importlib",
+]
