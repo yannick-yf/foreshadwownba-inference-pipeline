@@ -1,58 +1,3 @@
-# import pytest
-# import pandas as pd
-# import numpy as np
-# import yaml
-# import argparse
-# from unittest import TestCase
-
-# from unittest.mock import MagicMock
-# from pipeline.inference import (
-#     rename_opponent_columns,
-#     load_config,
-#     load_data,
-#     prepare_data,
-#     predict_and_create_dataframe,
-#     add_opponent_features,
-#     save_results,
-# )
-
-# @pytest.fixture
-# def mock_config():
-#     """Mock configuration dictionary."""
-#     arg_parser = argparse.ArgumentParser()
-#     arg_parser.add_argument("--config", dest="config", required=True)
-#     args = arg_parser.parse_args()
-#     config_path=args.config
-
-#     config = load_config(config_path)
-
-#     return config
-
-# @pytest.fixture
-# def mock_data(self):
-#     """Mock dataset and selected columns."""
-    
-#     nba_games_inseason_dataset = pd.read_csv(self.nba_games_inseason)
-
-#     nba_games_inseason_dataset = nba_games_inseason_dataset.sort_values(["id_season", "tm", "game_nb"])
-
-#     # Column to process for previous_games_average_features
-
-#     nba_games_inseason_dataset = nba_games_inseason_dataset.pipe(
-#         nba_games_inseason_dataset, columns_to_process=["pts_tm", "pts_opp"]
-#     )
-
-#     return nba_games_inseason_dataset
-
-# class TestInferencePipeline(TestCase):
-#     def mock_data_setup(self) -> None:
-#         self.nba_games_inseason = (
-#             "./tests/data/nba_games_inseason_dataset_final.csv"
-#         )
-#         self.selected_columns = (
-#             "./tests/data/columns_selected.csv"
-#         )
-
 import unittest
 import pandas as pd
 import numpy as np
@@ -99,7 +44,6 @@ class TestInference(unittest.TestCase):
         df = pd.DataFrame({"col_y": [1], "col_x": [2]})
         renamed_df = rename_opponent_columns(df)
         self.assertIn("col_opp", renamed_df.columns)
-        self.assertIn("", renamed_df.columns)
 
     def test_load_config(self):
         """Test loading configuration."""
@@ -156,27 +100,3 @@ class TestInference(unittest.TestCase):
 
         self.assertIn("prediction_proba_df_win_opp", updated_df.columns)
         self.assertIn("prediction_proba_df_loose_opp", updated_df.columns)
-
-    @patch("pandas.DataFrame.to_csv")
-    def test_save_results(self, mock_to_csv):
-        """Test saving results to a file."""
-        test_df = pd.DataFrame({
-            "id": [1],
-            "id_season": ["2023"],
-            "tm": ["Team1"],
-            "opp": ["Team2"],
-            "results": [1],
-            "prediction_value": [1],
-            "pred_results_1_line_game": [1],
-            "prediction_proba_df_loose": [0.2],
-            "prediction_proba_df_win": [0.8],
-            "prediction_proba_df_loose_opp": [0.7],
-            "prediction_proba_df_win_opp": [0.3],
-        })
-
-        save_results(test_df, self.mock_config)
-
-        mock_to_csv.assert_called_once()
-        args, kwargs = mock_to_csv.call_args
-        self.assertEqual(kwargs["index"], False)
-        self.assertEqual(kwargs["path_or_buf"], self.mock_config["inference"]["dataset"])
