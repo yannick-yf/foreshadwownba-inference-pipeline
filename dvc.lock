@@ -57,8 +57,8 @@ stages:
       size: 1693511
     - path: pipeline/inference.py
       hash: md5
-      md5: 1f620e78bc9b287f579a81a286fbe98f
-      size: 5158
+      md5: db8d7a0b9a3574eb8e6f9efde7622334
+      size: 5681
     params:
       params.yaml:
         base:
