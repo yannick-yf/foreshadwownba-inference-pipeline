@@ -3,5 +3,14 @@ base:
   log_level: INFO
   random_state: 42
 
-get_training_dataset:
-  dataset: data/input/nba_training_dataset.csv
+get_inseason_dataset:
+  dataset: ./data/input/nba_games_inseason_dataset_final.csv
+
+get_models:
+  model: ./models/model.joblib
+  model_columns: ./models/columns_selected.csv
+
+inference:
+  target_variable: results
+  group_cv_variable: id
+  dataset: ./data/output/nba_games_inseasonn_w_pred.csv

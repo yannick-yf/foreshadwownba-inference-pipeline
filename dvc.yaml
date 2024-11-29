@@ -18,8 +18,26 @@ stages:
         s3://foreshadownba/dvc-ml-pipeline-output/model.joblib
         ${project.directory}/models/model.joblib
         --profile=ipfy
+      - >-
+        aws s3 cp
+        s3://foreshadownba/dvc-ml-pipeline-output/columns_selected.csv
+        ${project.directory}/models/columns_selected.csv
+        --profile=ipfy
       outs:
         - ${project.directory}/models/model.joblib
+  inference:
+        cmd: python3 -m pipeline.inference --config=params.yaml
+        deps:
+          - pipeline/inference.py
+          - ./models/model.joblib
+        params:
+          - base
+          - get_inseason_dataset
+          - get_models
+          - inference
+        outs:
+          - ./data/output/nba_games_inseasonn_w_pred.csv
+
   # inference:
   #     cmd: python print('test')
   # write_inseason_prediction_to_s3:

@@ -41,8 +41,40 @@ stages:
     cmd:
     - aws s3 cp s3://foreshadownba/dvc-ml-pipeline-output/model.joblib ./models/model.joblib
       --profile=ipfy
+    - aws s3 cp s3://foreshadownba/dvc-ml-pipeline-output/columns_selected.csv ./models/columns_selected.csv
+      --profile=ipfy
     outs:
     - path: ./models/model.joblib
       hash: md5
-      md5: a79a36f8f5bd464a3f35555dabf379f8
-      size: 2027879
+      md5: 88a46e49b26a2134cdc660ef5d27c8f1
+      size: 1693511
+  inference:
+    cmd: python3 -m pipeline.inference --config=params.yaml
+    deps:
+    - path: ./models/model.joblib
+      hash: md5
+      md5: 88a46e49b26a2134cdc660ef5d27c8f1
+      size: 1693511
+    - path: pipeline/inference.py
+      hash: md5
+      md5: 1f620e78bc9b287f579a81a286fbe98f
+      size: 5158
+    params:
+      params.yaml:
+        base:
+          log_level: INFO
+          random_state: 42
+        get_inseason_dataset:
+          dataset: ./data/input/nba_games_inseason_dataset_final.csv
+        get_models:
+          model: ./models/model.joblib
+          model_columns: ./models/columns_selected.csv
+        inference:
+          target_variable: results
+          group_cv_variable: id
+          dataset: ./data/output/nba_games_inseasonn_w_pred.csv
+    outs:
+    - path: ./data/output/nba_games_inseasonn_w_pred.csv
+      hash: md5
+      md5: 5cca641935b8e820451ab73766944268
+      size: 21254
