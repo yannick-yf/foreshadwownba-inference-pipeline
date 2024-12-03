@@ -1,0 +1,35 @@
+name: CML
+
+on:
+  push:
+    branches:
+      - '*'  # Runs on all branches
+  schedule:
+    - cron: '30 14 * * *'  # Runs every day at 2:30pm UTC
+  workflow_dispatch:
+jobs:
+  data-features-engineering-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11.9"
+          cache: "poetry"
+      - name: Install dependencies
+        run: poetry install --no-root
+      - name: Inference Pipeline Step
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: eu-central-1
+        run: |
+          aws s3 cp s3://foreshadownba/dvc-data-pipeline-output/nba_games_inseason_dataset_final.csv ./data/input/nba_games_inseason_dataset_final.csv
+          aws s3 cp s3://foreshadownba/dvc-ml-pipeline-output/model.joblib ./models/model.joblib
+          aws s3 cp s3://foreshadownba/dvc-ml-pipeline-output/columns_selected.csv ./models/columns_selected.csv
+          poetry run dvc repro
+          aws s3 cp ./data/output/nba_games_inseasonn_w_pred.csv s3://foreshadownba/inference-pipeline-output/
+          
