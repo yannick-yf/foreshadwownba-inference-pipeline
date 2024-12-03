@@ -64,7 +64,7 @@ def predict_and_create_dataframe(model, x_inseason: np.ndarray, nba_games_inseas
     prediction_proba_df = pd.DataFrame(prediction_proba, columns=["prediction_proba_df_0", "prediction_proba_df_1"])
 
     nba_games_inseasonn_w_pred = nba_games_inseason_dataset_final[
-        [target_column, group_cv_variable, "id_season", "tm", "opp"]
+        [target_column, group_cv_variable, "id_season", "game_date", "tm", "opp"]
     ].copy()
 
     nba_games_inseasonn_w_pred["prediction_proba_df_0"] = prediction_proba_df["prediction_proba_df_0"]
@@ -110,15 +110,16 @@ def save_results(nba_games_inseasonn_w_pred: pd.DataFrame, config: dict) -> None
     final_columns = [
         "id",
         "id_season",
+        "game_date",
         "tm",
         "opp",
         "results",
         "prediction_value",
         "pred_results_1_line_game",
-        "prediction_proba_df_loose",
         "prediction_proba_df_win",
-        "prediction_proba_df_loose_opp",
+        "prediction_proba_df_loose",
         "prediction_proba_df_win_opp",
+        "prediction_proba_df_loose_opp"        
     ]
     nba_games_inseasonn_w_pred = nba_games_inseasonn_w_pred[final_columns]
     nba_games_inseasonn_w_pred.to_csv(config["inference"]["dataset"], index=False)

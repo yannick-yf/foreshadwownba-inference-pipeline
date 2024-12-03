@@ -26,20 +26,24 @@ stages:
       outs:
         - ${project.directory}/models/model.joblib
   inference:
-        cmd: python3 -m pipeline.inference --config=params.yaml
-        deps:
-          - pipeline/inference.py
-          - ./models/model.joblib
-        params:
-          - base
-          - get_inseason_dataset
-          - get_models
-          - inference
-        outs:
-          - ./data/output/nba_games_inseasonn_w_pred.csv
-
-  # inference:
-  #     cmd: python print('test')
-  # write_inseason_prediction_to_s3:
-  #     cmd: python print('test')
+      cmd: python3 -m pipeline.inference --config=params.yaml
+      deps:
+        - pipeline/inference.py
+        - ./models/model.joblib
+      params:
+        - base
+        - get_inseason_dataset
+        - get_models
+        - inference
+      outs:
+        - ./data/output/nba_games_inseasonn_w_pred.csv
+  write_final_model_to_s3:
+      cmd:
+      - >-
+        aws s3 cp
+        ${project.directory}/data/output/nba_games_inseasonn_w_pred.csv
+        s3://foreshadownba/inference-pipeline-output/
+        --profile=ipfy
+      deps:
+      - ${project.directory}/data/output/nba_games_inseasonn_w_pred.csv
         
