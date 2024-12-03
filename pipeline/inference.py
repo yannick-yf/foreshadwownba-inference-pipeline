@@ -34,7 +34,9 @@ def load_data(config: dict) -> tuple:
     return nba_games_inseason_dataset_final, column_to_select
 
 
-def prepare_data(nba_games_inseason_dataset_final: pd.DataFrame, column_to_select: list, config: dict) -> tuple:
+def prepare_data(
+    nba_games_inseason_dataset_final: pd.DataFrame, column_to_select: list, config: dict
+) -> tuple:
     """Prepare input features and target variables."""
     target_column = config["inference"]["target_variable"]
     group_cv_variable = config["inference"]["group_cv_variable"]
@@ -54,21 +56,32 @@ def prepare_data(nba_games_inseason_dataset_final: pd.DataFrame, column_to_selec
     return x_inseason, y_inseason
 
 
-def predict_and_create_dataframe(model, x_inseason: np.ndarray, nba_games_inseason_dataset_final: pd.DataFrame, config: dict) -> pd.DataFrame:
+def predict_and_create_dataframe(
+    model,
+    x_inseason: np.ndarray,
+    nba_games_inseason_dataset_final: pd.DataFrame,
+    config: dict,
+) -> pd.DataFrame:
     """Perform predictions and create the prediction DataFrame."""
     target_column = config["inference"]["target_variable"]
     group_cv_variable = config["inference"]["group_cv_variable"]
 
     prediction_value = model.predict(x_inseason)
     prediction_proba = model.predict_proba(x_inseason)
-    prediction_proba_df = pd.DataFrame(prediction_proba, columns=["prediction_proba_df_0", "prediction_proba_df_1"])
+    prediction_proba_df = pd.DataFrame(
+        prediction_proba, columns=["prediction_proba_df_0", "prediction_proba_df_1"]
+    )
 
     nba_games_inseasonn_w_pred = nba_games_inseason_dataset_final[
         [target_column, group_cv_variable, "id_season", "game_date", "tm", "opp"]
     ].copy()
 
-    nba_games_inseasonn_w_pred["prediction_proba_df_0"] = prediction_proba_df["prediction_proba_df_0"]
-    nba_games_inseasonn_w_pred["prediction_proba_df_1"] = prediction_proba_df["prediction_proba_df_1"]
+    nba_games_inseasonn_w_pred["prediction_proba_df_0"] = prediction_proba_df[
+        "prediction_proba_df_0"
+    ]
+    nba_games_inseasonn_w_pred["prediction_proba_df_1"] = prediction_proba_df[
+        "prediction_proba_df_1"
+    ]
     nba_games_inseasonn_w_pred["prediction_value"] = prediction_value
 
     nba_games_inseasonn_w_pred = nba_games_inseasonn_w_pred.rename(
@@ -82,7 +95,13 @@ def predict_and_create_dataframe(model, x_inseason: np.ndarray, nba_games_inseas
 
 def add_opponent_features(nba_games_inseasonn_w_pred: pd.DataFrame) -> pd.DataFrame:
     """Add opponent features to the prediction DataFrame."""
-    opponent_features = ["id", "tm", "opp", "prediction_proba_df_loose", "prediction_proba_df_win"]
+    opponent_features = [
+        "id",
+        "tm",
+        "opp",
+        "prediction_proba_df_loose",
+        "prediction_proba_df_win",
+    ]
     nba_games_inseasonn_w_pred_opp = nba_games_inseasonn_w_pred[opponent_features]
 
     nba_games_inseasonn_w_pred = pd.merge(
@@ -101,7 +120,9 @@ def add_opponent_features(nba_games_inseasonn_w_pred: pd.DataFrame) -> pd.DataFr
         0,
     )
 
-    nba_games_inseasonn_w_pred = nba_games_inseasonn_w_pred.drop_duplicates(subset=["id"], keep="first")
+    nba_games_inseasonn_w_pred = nba_games_inseasonn_w_pred.drop_duplicates(
+        subset=["id"], keep="first"
+    )
     return nba_games_inseasonn_w_pred
 
 
@@ -119,7 +140,7 @@ def save_results(nba_games_inseasonn_w_pred: pd.DataFrame, config: dict) -> None
         "prediction_proba_df_win",
         "prediction_proba_df_loose",
         "prediction_proba_df_win_opp",
-        "prediction_proba_df_loose_opp"        
+        "prediction_proba_df_loose_opp",
     ]
     nba_games_inseasonn_w_pred = nba_games_inseasonn_w_pred[final_columns]
     nba_games_inseasonn_w_pred.to_csv(config["inference"]["dataset"], index=False)
@@ -133,9 +154,13 @@ def inference(config_path: str) -> None:
     nba_games_inseason_dataset_final, column_to_select = load_data(config)
     model = joblib.load(config["get_models"]["model"])
 
-    x_inseason, _ = prepare_data(nba_games_inseason_dataset_final, column_to_select, config)
+    x_inseason, _ = prepare_data(
+        nba_games_inseason_dataset_final, column_to_select, config
+    )
 
-    nba_games_inseasonn_w_pred = predict_and_create_dataframe(model, x_inseason, nba_games_inseason_dataset_final, config)
+    nba_games_inseasonn_w_pred = predict_and_create_dataframe(
+        model, x_inseason, nba_games_inseason_dataset_final, config
+    )
     nba_games_inseasonn_w_pred = add_opponent_features(nba_games_inseasonn_w_pred)
 
     save_results(nba_games_inseasonn_w_pred, config)
