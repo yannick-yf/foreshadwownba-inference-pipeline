@@ -30,6 +30,6 @@ jobs:
           aws s3 cp s3://foreshadownba/dvc-data-pipeline-output/nba_games_inseason_dataset_final.csv ./data/input/nba_games_inseason_dataset_final.csv
           aws s3 cp s3://foreshadownba/dvc-ml-pipeline-output/model.joblib ./models/model.joblib
           aws s3 cp s3://foreshadownba/dvc-ml-pipeline-output/columns_selected.csv ./models/columns_selected.csv
-          poetry run dvc repro
+          python3 -m pipeline.inference --inseason-dataset-file-path ./data/input/nba_games_inseason_dataset_final.csv --model-column ./models/columns_selected.csv --model-file-path ./models/model.joblib --target-variable results --group-cv-variable id --inference-dataset-output ./data/output/nba_games_inseasonn_w_pred.csv
           aws s3 cp ./data/output/nba_games_inseasonn_w_pred.csv s3://foreshadownba/inference-pipeline-output/
           

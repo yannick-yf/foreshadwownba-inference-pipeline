@@ -2,33 +2,41 @@ vars:
   - project:
       directory: .
 stages:
-  # get_inseason_dataset:
-  #     cmd:
-  #     - >-
-  #       aws s3 cp
-  #       s3://foreshadownba/dvc-data-pipeline-output/nba_games_inseason_dataset_final.csv
-  #       ${project.directory}/data/input/nba_games_inseason_dataset_final.csv
-  #       --profile=ipfy
-  #     outs:
-  #       - ${project.directory}/data/input/nba_games_inseason_dataset_final.csv
-  # get_models:
-  #     cmd:
-  #     - >-
-  #       aws s3 cp
-  #       s3://foreshadownba/dvc-ml-pipeline-output/model.joblib
-  #       ${project.directory}/models/model.joblib
-  #       --profile=ipfy
-  #     - >-
-  #       aws s3 cp
-  #       s3://foreshadownba/dvc-ml-pipeline-output/columns_selected.csv
-  #       ${project.directory}/models/columns_selected.csv
-  #       --profile=ipfy
-  #     outs:
-  #       - ${project.directory}/models/model.joblib
+  get_inseason_dataset:
+      cmd:
+      - >-
+        aws s3 cp
+        s3://foreshadownba/dvc-data-pipeline-output/nba_games_inseason_dataset_final.csv
+        ${project.directory}/data/input/nba_games_inseason_dataset_final.csv
+        --profile=ipfy
+      outs:
+        - ${project.directory}/data/input/nba_games_inseason_dataset_final.csv
+  get_models:
+      cmd:
+      - >-
+        aws s3 cp
+        s3://foreshadownba/dvc-ml-pipeline-output/model.joblib
+        ${project.directory}/models/model.joblib
+        --profile=ipfy
+      - >-
+        aws s3 cp
+        s3://foreshadownba/dvc-ml-pipeline-output/columns_selected.csv
+        ${project.directory}/models/columns_selected.csv
+        --profile=ipfy
+      outs:
+        - ${project.directory}/models/model.joblib
   inference:
-      cmd: python3 -m pipeline.inference --config=params.yaml
+      cmd: 
+      - >- 
+        python3 -m src.inference
+        --inseason-dataset-file-path ${get_inseason_dataset.dataset}
+        --model-column ${get_models.model_columns}
+        --model-file-path ${get_models.model}
+        --target-variable ${inference.target_variable}
+        --group-cv-variable ${inference.group_cv_variable}
+        --inference-dataset-output ${inference.dataset}
       deps:
-        - pipeline/inference.py
+        - src/inference.py
         - ./models/model.joblib
       params:
         - base
@@ -37,13 +45,13 @@ stages:
         - inference
       outs:
         - ${project.directory}/data/output/nba_games_inseasonn_w_pred.csv
-  # write_final_model_to_s3:
-  #     cmd:
-  #     - >-
-  #       aws s3 cp
-  #       ${project.directory}/data/output/nba_games_inseasonn_w_pred.csv
-  #       s3://foreshadownba/inference-pipeline-output/
-  #       --profile=ipfy
-  #     deps:
-  #     - ${project.directory}/data/output/nba_games_inseasonn_w_pred.csv
+  write_final_model_to_s3:
+      cmd:
+      - >-
+        aws s3 cp
+        ${project.directory}/data/output/nba_games_inseasonn_w_pred.csv
+        s3://foreshadownba/inference-pipeline-output/
+        --profile=ipfy
+      deps:
+      - ${project.directory}/data/output/nba_games_inseasonn_w_pred.csv
         
