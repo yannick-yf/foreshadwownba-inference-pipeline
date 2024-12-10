@@ -53,7 +53,7 @@ stages:
   inference:
     cmd:
     - python3 -m src.inference --inseason-dataset-file-path ./data/input/nba_games_inseason_dataset_final.csv
-      --model-column ./models/columns_selected.csv --model-file-path ./models/model.joblib
+      --model-columns ./models/columns_selected.csv --model-file-path ./models/model.joblib
       --target-variable results --group-cv-variable id --inference-dataset-output
       ./data/output/nba_games_inseasonn_w_pred.csv
     deps:
