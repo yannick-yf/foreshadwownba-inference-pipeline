@@ -2,14 +2,20 @@ vars:
   - project:
       directory: .
 stages:
-  get_inseason_dataset:
+  get_dataset:
       cmd:
+      - >-
+        aws s3 cp
+        s3://foreshadownba/dvc-data-pipeline-output/nba_games_training_dataset_final.csv
+        ${project.directory}/data/input/nba_games_training_dataset_final.csv
+        --profile=ipfy
       - >-
         aws s3 cp
         s3://foreshadownba/dvc-data-pipeline-output/nba_games_inseason_dataset_final.csv
         ${project.directory}/data/input/nba_games_inseason_dataset_final.csv
         --profile=ipfy
       outs:
+        - ${project.directory}/data/input/nba_games_training_dataset_final.csv
         - ${project.directory}/data/input/nba_games_inseason_dataset_final.csv
   get_models:
       cmd:
@@ -23,10 +29,15 @@ stages:
         s3://foreshadownba/dvc-ml-pipeline-output/columns_selected.csv
         ${project.directory}/models/columns_selected.csv
         --profile=ipfy
+      - >-
+        aws s3 cp
+        s3://foreshadownba/dvc-ml-pipeline-output/cross_val_pred.csv
+        ${project.directory}/models/cross_val_pred.csv
+        --profile=ipfy
       outs:
         - ${project.directory}/models/model.joblib
   inference:
-      cmd: 
+      cmd:
       - >- 
         python3 -m src.inference
         --inseason-dataset-file-path ${get_inseason_dataset.dataset}
