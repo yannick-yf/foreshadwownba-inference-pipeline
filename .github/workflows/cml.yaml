@@ -31,5 +31,7 @@ jobs:
           aws s3 cp s3://foreshadownba/dvc-ml-pipeline-output/model.joblib ./models/model.joblib
           aws s3 cp s3://foreshadownba/dvc-ml-pipeline-output/columns_selected.csv ./models/columns_selected.csv
           poetry run python -m src.inference --inseason-dataset-file-path ./data/input/nba_games_inseason_dataset_final.csv --model-columns ./models/columns_selected.csv --model-file-path ./models/model.joblib --target-variable results --group-cv-variable id --inference-dataset-output ./data/output/nba_games_inseasonn_w_pred.csv
+          poetry run python -m src.model_inference_report --inseason-dataset-file-path ./data/input/nba_games_inseason_dataset_final.csv --training-dataset-file-path ./data/input/nba_games_training_dataset_final.csv --model-columns ./models/columns_selected.csv --target-variable results --group-cv-variable id
           aws s3 cp ./data/output/nba_games_inseasonn_w_pred.csv s3://foreshadownba/inference-pipeline-output/
-          
+          aws s3 cp data/output/data_drift_report.html s3://foreshadownba/inference-pipeline-output/
+          aws s3 cp data/output/data_stability_report.html s3://foreshadownba/inference-pipeline-output/
