@@ -3,8 +3,9 @@ base:
   log_level: INFO
   random_state: 42
 
-get_inseason_dataset:
-  dataset: ./data/input/nba_games_inseason_dataset_final.csv
+get_dataset:
+  inseason_dataset: ./data/input/nba_games_inseason_dataset_final.csv
+  training_dataset: ./data/input/nba_games_training_dataset_final.csv
 
 get_models:
   model: ./models/model.joblib

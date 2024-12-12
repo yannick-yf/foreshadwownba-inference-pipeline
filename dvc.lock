@@ -53,7 +53,7 @@ stages:
   inference:
     cmd:
     - python3 -m src.inference --inseason-dataset-file-path ./data/input/nba_games_inseason_dataset_final.csv
-      --model-column ./models/columns_selected.csv --model-file-path ./models/model.joblib
+      --model-columns ./models/columns_selected.csv --model-file-path ./models/model.joblib
       --target-variable results --group-cv-variable id --inference-dataset-output
       ./data/output/nba_games_inseasonn_w_pred.csv
     deps:
@@ -63,15 +63,16 @@ stages:
       size: 1692831
     - path: src/inference.py
       hash: md5
-      md5: 27f03786f3e6496ad8d795ede77f707d
-      size: 7810
+      md5: 9bec810ab94de7370a57795571cd1a31
+      size: 7792
     params:
       params.yaml:
         base:
           log_level: INFO
           random_state: 42
-        get_inseason_dataset:
-          dataset: ./data/input/nba_games_inseason_dataset_final.csv
+        get_dataset:
+          inseason_dataset: ./data/input/nba_games_inseason_dataset_final.csv
+          training_dataset: ./data/input/nba_games_training_dataset_final.csv
         get_models:
           model: ./models/model.joblib
           model_columns: ./models/columns_selected.csv
@@ -82,8 +83,8 @@ stages:
     outs:
     - path: ./data/output/nba_games_inseasonn_w_pred.csv
       hash: md5
-      md5: 99d44db6fde21041f7875acc5d3ada6f
-      size: 31573
+      md5: b37584adff7d9856d11eb5e382a5ec19
+      size: 31940
   write_final_model_to_s3:
     cmd:
     - aws s3 cp ./data/output/nba_games_inseasonn_w_pred.csv s3://foreshadownba/inference-pipeline-output/
@@ -91,8 +92,8 @@ stages:
     deps:
     - path: ./data/output/nba_games_inseasonn_w_pred.csv
       hash: md5
-      md5: 99d44db6fde21041f7875acc5d3ada6f
-      size: 31573
+      md5: b37584adff7d9856d11eb5e382a5ec19
+      size: 31940
   get_dataset:
     cmd:
     - aws s3 cp s3://foreshadownba/dvc-data-pipeline-output/nba_games_training_dataset_final.csv
@@ -102,9 +103,73 @@ stages:
     outs:
     - path: ./data/input/nba_games_inseason_dataset_final.csv
       hash: md5
-      md5: f938b7e734a2281552953facb1807159
-      size: 250529
+      md5: 762423191c49bad486c7924f428cb1e5
+      size: 253611
     - path: ./data/input/nba_games_training_dataset_final.csv
       hash: md5
-      md5: 4ca5cf7109bf2a2729f7df9650bcf505
-      size: 13554549
+      md5: f35f2273a388ab9c949879fb2aec9783
+      size: 13557631
+  model_inference_report:
+    cmd:
+    - python3 -m src.model_inference_report --inseason-dataset-file-path ./data/input/nba_games_inseason_dataset_final.csv
+      --inseason-dataset-file-path ./data/input/nba_games_training_dataset_final.csv
+      --model-columns ./models/columns_selected.csv --target-variable results --group-cv-variable
+      id
+    deps:
+    - path: ./models/model.joblib
+      hash: md5
+      md5: 57093c3e59fcb34357c01b6f44686c07
+      size: 1692831
+    - path: src/inference.py
+      hash: md5
+      md5: 9bec810ab94de7370a57795571cd1a31
+      size: 7792
+    - path: src/model_inference_report.py
+      hash: md5
+      md5: 4703b8a846fb50449f20022c6fb05c02
+      size: 5374
+    params:
+      params.yaml:
+        base:
+          log_level: INFO
+          random_state: 42
+        get_dataset:
+          inseason_dataset: ./data/input/nba_games_inseason_dataset_final.csv
+          training_dataset: ./data/input/nba_games_training_dataset_final.csv
+        get_models:
+          model: ./models/model.joblib
+          model_columns: ./models/columns_selected.csv
+        inference:
+          target_variable: results
+          group_cv_variable: id
+          dataset: ./data/output/nba_games_inseasonn_w_pred.csv
+    outs:
+    - path: ./data/output/data_drift_report.html
+      hash: md5
+      md5: 64d848b9ff0e4d64f763255af2f181d7
+      size: 3234166
+    - path: ./data/output/data_stability_report.html
+      hash: md5
+      md5: 133bc88ec6d0ff918ec044d076787dba
+      size: 3126298
+  write_inference_to_s3:
+    cmd:
+    - aws s3 cp ./data/output/nba_games_inseasonn_w_pred.csv s3://foreshadownba/inference-pipeline-output/
+      --profile=ipfy
+    - aws s3 cp ./data/output/data_stability_report.html s3://foreshadownba/inference-pipeline-output/
+      --profile=ipfy
+    - aws s3 cp ./data/output/data_drift_report.html s3://foreshadownba/inference-pipeline-output/
+      --profile=ipfy
+    deps:
+    - path: ./data/output/data_drift_report.html
+      hash: md5
+      md5: 64d848b9ff0e4d64f763255af2f181d7
+      size: 3234166
+    - path: ./data/output/data_stability_report.html
+      hash: md5
+      md5: 133bc88ec6d0ff918ec044d076787dba
+      size: 3126298
+    - path: ./data/output/nba_games_inseasonn_w_pred.csv
+      hash: md5
+      md5: b37584adff7d9856d11eb5e382a5ec19
+      size: 31940

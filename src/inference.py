@@ -201,7 +201,7 @@ def get_args():
     args, _ = parser.parse_known_args()
     params = yaml.safe_load(args.params_file.open())
 
-    get_inseason_dataset_params = params["get_inseason_dataset"]
+    get_dataset_params = params["get_dataset"]
     get_models_params = params["get_models"]
     inference_params = params["inference"]
 
@@ -209,7 +209,7 @@ def get_args():
         "--inseason-dataset-file-path",
         dest="inseason_dataset_file_path",
         type=str,
-        default=get_inseason_dataset_params["dataset"],
+        default=get_dataset_params["inseason_dataset"],
     )
 
     parser.add_argument(

@@ -40,8 +40,8 @@ stages:
       cmd:
       - >- 
         python3 -m src.inference
-        --inseason-dataset-file-path ${get_inseason_dataset.dataset}
-        --model-column ${get_models.model_columns}
+        --inseason-dataset-file-path ${get_dataset.inseason_dataset}
+        --model-columns ${get_models.model_columns}
         --model-file-path ${get_models.model}
         --target-variable ${inference.target_variable}
         --group-cv-variable ${inference.group_cv_variable}
@@ -51,18 +51,51 @@ stages:
         - ./models/model.joblib
       params:
         - base
-        - get_inseason_dataset
+        - get_dataset
         - get_models
         - inference
       outs:
         - ${project.directory}/data/output/nba_games_inseasonn_w_pred.csv
-  write_final_model_to_s3:
+  model_inference_report:
+      cmd:
+      - >- 
+        python3 -m src.model_inference_report
+        --inseason-dataset-file-path ${get_dataset.inseason_dataset}
+        --inseason-dataset-file-path ${get_dataset.training_dataset}
+        --model-columns ${get_models.model_columns}
+        --target-variable ${inference.target_variable}
+        --group-cv-variable ${inference.group_cv_variable}
+      deps:
+        - src/inference.py
+        - src/model_inference_report.py
+        - ./models/model.joblib
+      params:
+        - base
+        - get_dataset
+        - get_models
+        - inference
+      outs:
+        - ${project.directory}/data/output/data_stability_report.html
+        - ${project.directory}/data/output/data_drift_report.html
+  write_inference_to_s3:
       cmd:
       - >-
         aws s3 cp
         ${project.directory}/data/output/nba_games_inseasonn_w_pred.csv
         s3://foreshadownba/inference-pipeline-output/
         --profile=ipfy
+      - >-
+        aws s3 cp
+        ${project.directory}/data/output/data_stability_report.html
+        s3://foreshadownba/inference-pipeline-output/
+        --profile=ipfy
+      - >-
+        aws s3 cp
+        ${project.directory}/data/output/data_drift_report.html
+        s3://foreshadownba/inference-pipeline-output/
+        --profile=ipfy
       deps:
       - ${project.directory}/data/output/nba_games_inseasonn_w_pred.csv
+      - ${project.directory}/data/output/data_stability_report.html
+      - ${project.directory}/data/output/data_drift_report.html
         
