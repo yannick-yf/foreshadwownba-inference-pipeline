@@ -61,7 +61,7 @@ stages:
       - >- 
         python3 -m src.model_inference_report
         --inseason-dataset-file-path ${get_dataset.inseason_dataset}
-        --inseason-dataset-file-path ${get_dataset.training_dataset}
+        --training-dataset-file-path ${get_dataset.training_dataset}
         --model-columns ${get_models.model_columns}
         --target-variable ${inference.target_variable}
         --group-cv-variable ${inference.group_cv_variable}

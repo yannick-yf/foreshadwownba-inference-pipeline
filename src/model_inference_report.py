@@ -36,8 +36,8 @@ def load_data(
     model_columns_path: str,
 ) -> tuple:
     """Load datasets and columns from configuration."""
-    nba_games_inseason_dataset_final = pd.read_csv(nba_games_inseason_dataset_path)
     nba_games_training_dataset_final = pd.read_csv(nba_games_training_dataset_path)
+    nba_games_inseason_dataset_final = pd.read_csv(nba_games_inseason_dataset_path)
     columns_selected = pd.read_csv(model_columns_path)
     columns_selected.columns = ["index", "columns_name"]
     column_to_select = columns_selected["columns_name"].values
