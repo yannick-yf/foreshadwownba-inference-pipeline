@@ -81,20 +81,29 @@ def model_inference_report(
             nba_games_training['game_nb'] <= int(nba_games_inseason.game_nb.max())
             ]
 
+    # Identify numeric and categorical columns
+    numeric_columns = nba_games_inseason.select_dtypes(include=['number']).columns.tolist()
+    categorical_columns = nba_games_inseason.select_dtypes(exclude=['number']).columns.tolist()
+
+    # Create column mapping
+    column_mapping = ColumnMapping()
+    column_mapping.numerical_features = numeric_columns
+    column_mapping.categorical_features = categorical_columns
+
     # Data Stability Report
-    data_stability= TestSuite(tests=[
+    data_stability = TestSuite(tests=[
         DataStabilityTestPreset(),
     ])
     data_stability.run(
         current_data=nba_games_inseason, 
         reference_data=nba_games_training, 
-        column_mapping=None
+        column_mapping=column_mapping
         )
     data_stability.save_html(
         "./data/output/data_stability_report.html"
         )
 
-    # Data Report Report
+    # Data Drift Report
     data_drift_report = Report(metrics=[
         DataDriftPreset(),
     ])
@@ -102,7 +111,7 @@ def model_inference_report(
     data_drift_report.run(
         current_data=nba_games_inseason, 
         reference_data=nba_games_training, 
-        column_mapping=None
+        column_mapping=column_mapping
         )
     data_drift_report.save_html(
         "./data/output/data_drift_report.html"
